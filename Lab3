@@ -16,3 +16,5 @@ print(derivative)
 plt.xscale("log")
 plt.ylim([0.998, 1.002])
 _=plt.plot(delta,derivative)
+plt.show()
+
