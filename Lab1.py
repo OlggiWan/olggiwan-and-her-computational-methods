@@ -23,7 +23,7 @@ dilation = ly/gamma
 earth = ly/v
 spaceship = dilation/v
 
-print("This is time, in years, that passes on the rest frame of the observer on Earth", earth)
-print("This is the time, in years, that the spaceship takes to get to its destination, as perceived by as passenger on board the ship ",spaceship)
+print("This is time, in years, that passes on the rest frame of the observer on Earth in terms of c", earth)
+print("This is the time, in years, that the spaceship takes to get to its destination, as perceived by as passenger on board the ship in terms of c ",spaceship)
 
 
