@@ -15,7 +15,6 @@ ask the user for the value of x and the speed v as a fraction of the speed of li
 its destination (a) in the rest frame of an observer on Earth and (b) as perceived by a passenger on board the ship. Use your program to calculate the 
 answers for a planet 10 light years away with v = 0.99c.
 """
-import numpy as np
 
 ly = 0.99
 v = 10
