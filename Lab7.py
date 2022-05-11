@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy.fft as fft
 
 '''
-For this laboratory assignment, the goal is to create three plots -- for a square wave, a sawtooth wave, an a 
+For this laboratory assignment, the goal is to create three plots -- for a square wave, a sawtooth wave, and a 
 modulated sine wave, respectively. The task is then to create a Fourier Transform plot for each.
 '''
 x = np.linspace(0, 1000, 1000) #x-values
@@ -36,9 +36,10 @@ plt.title('Sawtooth Wave')
 plt.show()
    
 def modulated_wave(x):
+    N = (len(x))
     y = np.zeros(len(x))
-    for i in range(len(x)):
-        y = np.sin(np.pi*i/x)*np.sin(20*np.pi*i/x)
+    for i in range(N):
+        y[i] = np.sin(np.pi*i/N)*np.sin(20*np.pi*i/N)
     return y
         
 plt.plot(modulated_wave(x))
