@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 rng = np.random.default_rng(seed=42)
 """
