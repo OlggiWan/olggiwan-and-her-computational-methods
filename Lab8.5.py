@@ -19,9 +19,10 @@ def I(x):
 z = rng.random(1000)
 x = z**2
 answer = np.mean(I(x))
+print("The value for the integral when solved using Monte Carlo integration is ",answer)
 
 histogram = plt.hist 
 plt.hist(x)
-print(histogram)
-
+plt.title("Histogram Showing the Probability Distribution for the Integral")
+plt.show()
 
