@@ -20,8 +20,8 @@ z = rng.random(1000)
 x = z**2
 answer = np.mean(I(x))
 
-something = plt.hist 
+histogram = plt.hist 
 plt.hist(x)
-print(answer)
+print(histogram)
 
 
