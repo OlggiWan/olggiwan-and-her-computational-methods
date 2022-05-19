@@ -29,7 +29,7 @@ indices = locator(x,y,longlat_range)
 count = len(indices)
 #print(indices)
 
-#file_names = glob.glob(dirname+'*.hdf') Goodbye glob! I hardly knew ye.
+#file_names = glob.glob(dirname+'*.hdf') Alas, poor glob. I (never) knew him.
 file_names = os.listdir(dirname)
 #file_names.remove('.DS_Store')
 NT = len(file_names) #that's a lot of files! (number of timesteps)
