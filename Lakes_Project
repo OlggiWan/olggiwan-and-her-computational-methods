@@ -1,0 +1,84 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import numpy.fft as fft
+from pyhdf.SD import SD, SDC
+import os 
+import glob
+
+dirname = "/Users/HNorouzi/Desktop/Global_Lakes_Project/Raw_Data/H09V04/"
+x = 9 #The tile number for Lake Washington is H09V04. These are Cartesian Coordinates.
+y = 4
+longlat_range = [47.60607,47.61984,-122.26706,-122.24389] #Lake Washington values
+count = 0
+
+mlat = np.zeros([1200,1200])
+mlon = np.zeros([1200,1200])
+
+def locator(x,y, longlat_range):
+    indices = []
+    for i in range(1,1200): #determines the pixels in the lake
+        for j in range (1,1200):
+            mlat[i,j] = np.rad2deg(((y+((i-1)/1200))-9)/(-9))*np.pi/2
+            mlon[i,j] = (((x+((j-1)/1200)-18)*10))/np.cos(np.deg2rad(mlat[i,1]))
+            if mlat[i,j]>longlat_range[0] and mlat[i,j]<longlat_range[1] and mlon[i,j]>longlat_range[2] and mlon[i,j]<longlat_range[3]:
+                indices.append([i,j])
+                #print(i,j) No longer needed, but this was used to check that the values were correct.
+    return indices #we used count to debug
+
+indices = locator(x,y,longlat_range)
+count = len(indices)
+#print(indices)
+
+#file_names = glob.glob(dirname+'*.hdf') Goodbye glob! I hardly knew ye.
+file_names = os.listdir(dirname)
+#file_names.remove('.DS_Store')
+NT = len(file_names) #that's a lot of files! (number of timesteps)
+size = (count,NT) #the four here represents the four pixes we found in is and js
+all_data = np.ones(size)
+#lake = np.ones((1200,1200),6743)
+time = np.arange(0,NT)
+#file_names.remove[1017]
+#print(file_names[1016])
+#print(file_names[1017]) There were some issues with certain files, and we determined that 1017 had an error.
+#print(file_names[1018])
+#print(NT)
+#print(file_names[0])
+
+#the following arranges the order of the hdf files chronologically
+temp = np.zeros(NT)
+for i in range (NT):
+    temp[i] = np.int32(file_names[i][28:37])
+sorting = np.argsort(temp)
+#print(temp[sorting])
+
+for i in range(NT):
+  #over the number of times in the files
+    lake = SD(dirname + file_names[i], SDC.READ)
+    sds_obj = lake.select('LST_Day_1km') # select sds
+    data = sds_obj.get() # get sds data
+    #print(data)
+    for j in range(count): #count is the number of pixels in each lake
+        id1 = indices[j][0]
+        id2 = indices[j][1]
+        all_data[j,i] = data[id1,id2]
+             
+np.savetxt('lake.csv', all_data)   
+
+#print(all_data)
+data_y = all_data[0,:]
+data_scaled = data_y*0.02
+non_zero_avg = np.mean(data_scaled[data_scaled>0])
+print(non_zero_avg)
+data_scaled[data_scaled<200]=non_zero_avg #this gets rid of the values that equal zero, as well as outliers below 200
+plt.scatter(time, data_scaled, s=1, marker='.')
+plt.ylim([250,350])
+#plt.xticks(range(2002,2020,19*366))
+plt.xlabel('Years')
+plt.ylabel('Temperature in Kelvin')
+plt.show()
+
+data_scaled = data_scaled - non_zero_avg
+lake_fourier = np.fft.fft(data_scaled)
+plt.plot(np.real(lake_fourier*np.conjugate(lake_fourier)))
+plt.title('Fourier Transform of Lake Washington Daily Temperatures')
+plt.show()
