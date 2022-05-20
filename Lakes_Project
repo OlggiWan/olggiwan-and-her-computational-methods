@@ -4,11 +4,26 @@ import numpy.fft as fft
 from pyhdf.SD import SD, SDC
 import os 
 import glob
+import time
 
-dirname = "/Users/HNorouzi/Desktop/Global_Lakes_Project/Raw_Data/H09V04/"
+"""
+This project analyses lake surface water temperature trends for Lake Washington between 1/1/2002 and 12/31/2020. 
+This analysis of temperature variation was conducted using daily observations from the Moderate Resolution
+Imaging Spectroradiometer (MODIS) over the lake and its surrounding area. 
+
+This is part of a bigger research project conducted by Prof. Bah, and some of the code was inspired by its 
+MATLAB equivalent. https://moonbooks.org/Articles/How-to-read-a-MODIS-HDF-file-using-python-/ was also incredibly 
+helpful.
+
+The following will also contain a Fourier analysis. The code was designed to be easily adaptable for use of other
+lakes with helpful comments.
+"""
+start = time.time()#to test time complexity, let's see how long this program takes to run!
+
+dirname = "/Users/HNorouzi/Desktop/Global_Lakes_Project/Raw_Data/H09V04/" #insert directory here
 x = 9 #The tile number for Lake Washington is H09V04. These are Cartesian Coordinates.
 y = 4
-longlat_range = [47.60607,47.61984,-122.26706,-122.24389] #Lake Washington values
+longlat_range = [47.60607,47.61984,-122.26706,-122.24389] #Lake Washington longitude and latitude surrounding values
 count = 0
 
 mlat = np.zeros([1200,1200])
@@ -16,7 +31,7 @@ mlon = np.zeros([1200,1200])
 
 def locator(x,y, longlat_range):
     indices = []
-    for i in range(1,1200): #determines the pixels in the lake
+    for i in range(1,1200): #determines the amount of pixels in the lake data
         for j in range (1,1200):
             mlat[i,j] = np.rad2deg(((y+((i-1)/1200))-9)/(-9))*np.pi/2
             mlon[i,j] = (((x+((j-1)/1200)-18)*10))/np.cos(np.deg2rad(mlat[i,1]))
@@ -27,33 +42,25 @@ def locator(x,y, longlat_range):
 
 indices = locator(x,y,longlat_range)
 count = len(indices)
-#print(indices)
+#print(indices) This can be helpful for debugging.
 
 #file_names = glob.glob(dirname+'*.hdf') Alas, poor glob. I (never) knew him.
 file_names = os.listdir(dirname)
-#file_names.remove('.DS_Store')
 NT = len(file_names) #that's a lot of files! (number of timesteps)
-size = (count,NT) #the four here represents the four pixes we found in is and js
+size = (count,NT) 
 all_data = np.ones(size)
-#lake = np.ones((1200,1200),6743)
-time = np.arange(0,NT)
-#file_names.remove[1017]
-#print(file_names[1016])
-#print(file_names[1017]) There were some issues with certain files, and we determined that 1017 had an error.
-#print(file_names[1018])
-#print(NT)
-#print(file_names[0])
+years = np.arange(0,NT)
 
 #the following arranges the order of the hdf files chronologically
 temp = np.zeros(NT)
 for i in range (NT):
-    temp[i] = np.int32(file_names[i][28:37])
+    temp[i] = np.int64(file_names[i][28:37])
 sorting = np.argsort(temp)
-#print(temp[sorting])
+#print(temp[sorting]) this can be used for debugging
 
 for i in range(NT):
-  #over the number of times in the files
-    lake = SD(dirname + file_names[i], SDC.READ)
+    #over the number of times in the files
+    lake = SD(dirname + file_names[sorting[i]], SDC.READ)
     sds_obj = lake.select('LST_Day_1km') # select sds
     data = sds_obj.get() # get sds data
     #print(data)
@@ -62,23 +69,34 @@ for i in range(NT):
         id2 = indices[j][1]
         all_data[j,i] = data[id1,id2]
              
-np.savetxt('lake.csv', all_data)   
-
+np.savetxt('lake.csv', all_data)#this is helpful in the interest of saving time, since this program has temporaly complex 
 #print(all_data)
 data_y = all_data[0,:]
 data_scaled = data_y*0.02
 non_zero_avg = np.mean(data_scaled[data_scaled>0])
-print(non_zero_avg)
+print("The average value for this lake's temperature is: ",non_zero_avg)#this prints the average temperature of the lake, and is helpful when determining 
+#which value to use to get rid of zero-values.
 data_scaled[data_scaled<200]=non_zero_avg #this gets rid of the values that equal zero, as well as outliers below 200
-plt.scatter(time, data_scaled, s=1, marker='.')
+
+#plotting the figure
+plt.scatter(years, data_scaled, s=1, marker='.')
 plt.ylim([250,350])
-#plt.xticks(range(2002,2020,19*366))
+#plt.xticks(np.arange(19), ['2002','2003','2004','2005','2006','2007','2008', '2009', '2010', '2011', '2012', '2013', '2014','2015','2016', '2017','2018','2019','2020'])
 plt.xlabel('Years')
 plt.ylabel('Temperature in Kelvin')
+plt.suptitle("Lake Washington Surface Temperature (Day)")
+z = np.polyfit(years.flatten(), data_scaled.flatten(),1) #thanks, Stackoverflow!
+p = np.poly1d(z)
+plt.plot(years,p(years),"r--")
+plt.title("y=%6fx+%.6f"%(z[0],z[1]))
 plt.show()
 
+#creating the Fourier transform
 data_scaled = data_scaled - non_zero_avg
 lake_fourier = np.fft.fft(data_scaled)
 plt.plot(np.real(lake_fourier*np.conjugate(lake_fourier)))
 plt.title('Fourier Transform of Lake Washington Daily Temperatures')
 plt.show()
+
+end = time.time()
+print(f"This program took:{end-start} seconds to run")
