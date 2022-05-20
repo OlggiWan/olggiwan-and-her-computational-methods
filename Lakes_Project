@@ -85,10 +85,10 @@ plt.ylim([250,350])
 plt.xlabel('Julian Days Between 2002 and 2020')
 plt.ylabel('Temperature in Kelvin')
 plt.suptitle("Lake Washington Surface Temperature (Day)")
-z = np.polyfit(years.flatten(), data_scaled.flatten(),1) #thanks, Stackoverflow!
-p = np.poly1d(z)
+trendline = np.polyfit(years.flatten(), data_scaled.flatten(),1) #thanks, Stackoverflow!
+p = np.poly1d(trendline)
 plt.plot(years,p(years),"r--")
-plt.title("y=%6fx+%.6f"%(z[0],z[1]))
+plt.title("y=%6fx+%.6f"%(trendline[0],trendline[1]))
 plt.show()
 
 #creating the Fourier transform
