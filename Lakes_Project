@@ -82,7 +82,7 @@ data_scaled[data_scaled<200]=non_zero_avg #this gets rid of the values that equa
 plt.scatter(years, data_scaled, s=1, marker='.')
 plt.ylim([250,350])
 #plt.xticks(np.arange(19), ['2002','2003','2004','2005','2006','2007','2008', '2009', '2010', '2011', '2012', '2013', '2014','2015','2016', '2017','2018','2019','2020'])
-plt.xlabel('Years')
+plt.xlabel('Julian Days Between 2002 and 2020')
 plt.ylabel('Temperature in Kelvin')
 plt.suptitle("Lake Washington Surface Temperature (Day)")
 z = np.polyfit(years.flatten(), data_scaled.flatten(),1) #thanks, Stackoverflow!
