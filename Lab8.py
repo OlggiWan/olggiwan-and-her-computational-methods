@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+%matplotlib inline
 
 """
 This is a particularly delightful laboratory assignment that follows the path of a particle on a random walk, 
@@ -44,22 +45,18 @@ position.append([i,j])
 motion = rng.integers(low=0,high=3,size=N) #dictionary index between 0 and 3
 for k in range (len(motion)):
     i,j = (move[motion[k]](i,j))
+    
+    #creating boundary conditions for the particle
+    if i<=-50:
+        i=i+1
+    elif i>=50:
+        i=i-1
+    elif j<=-50:
+        j=j+1
+    elif j>=50:
+        j=j-1
     position.append([i,j]) #saves each i and j
-    
-#creating boundary conditions for the particle
-    
-if i<=-50:
-    i+1
-elif i>=50:
-    i-1
-elif j<=-50:
-    j+1
-elif j>=50:
-    j-1
-else:
-    print(i,j)
 
-plt.plot(i,j)
 
 #plotting the animation
 
@@ -83,7 +80,8 @@ anim = animation.FuncAnimation(fig, animate,
 init_func=init,frames=360,interval=20,blit=True)
 anim.save('brownian_motion.mp4') 
 
-#writergif = animation.PillowWriter(fps=30) I originally had this code save a gif, before I was able to 
-#successfully install ffmpeg
-#anim.save('brownian_motion.gif',writer=writergif)
+#let's name a gif, too! Why not?
+
+writergif = animation.PillowWriter(fps=30) 
+anim.save('brownian_motion.gif',writer=writergif)
 plt.show()
