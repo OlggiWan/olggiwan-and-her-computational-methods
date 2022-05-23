@@ -7,7 +7,7 @@ import glob
 import time
 
 """
-This project analyses lake surface water temperature trends for Lake Washington between 1/1/2002 and 12/31/2020. 
+This project analyses Lake Surface Water Temperature (LSWT) trends for Lake Washington between 1/1/2002 and 12/31/2020. 
 This analysis of temperature variation was conducted using daily observations from the Moderate Resolution
 Imaging Spectroradiometer (MODIS) over the lake and its surrounding area. 
 
@@ -44,7 +44,7 @@ indices = locator(x,y,longlat_range)
 count = len(indices)
 #print(indices) This can be helpful for debugging.
 
-#file_names = glob.glob(dirname+'*.hdf') Alas, poor glob. I (never) knew him.
+#file_names = glob.glob(dirname+'*.hdf') Alas, poor glob. I (never) knew him, Horatio.
 file_names = os.listdir(dirname)
 NT = len(file_names) #that's a lot of files! (number of timesteps)
 size = (count,NT) 
@@ -68,8 +68,8 @@ for i in range(NT):
         id1 = indices[j][0]
         id2 = indices[j][1]
         all_data[j,i] = data[id1,id2]
-             
-np.savetxt('lake.csv', all_data)#this is helpful in the interest of saving time, since this program has temporaly complex 
+        
+all_data = np.loadtxt('lake.csv')
 #print(all_data)
 data_y = all_data[0,:]
 data_scaled = data_y*0.02
@@ -78,11 +78,28 @@ print("The average value for this lake's temperature is: ",non_zero_avg)#this pr
 #which value to use to get rid of zero-values.
 data_scaled[data_scaled<200]=non_zero_avg #this gets rid of the values that equal zero, as well as outliers below 200
 
-#plotting the figure
+#our Fourier transform
+def fourier(y, per=0.9): #help from a friend! (50 is a little under 10% of our total)
+    fourier_real = np.fft.rfft(y) #rfft is the n-dimensional of real input
+    f_array = int(len(fourier_real)*per) #length of array
+    new_array = len(fourier_real)-f_array #removes the last 90% or so from the array
+    fourier_real = (fourier_real[:f_array]) #the last element of the array
+    fourier_real = np.pad(fourier_real,(0,new_array),'constant') #creates a padded array of zeros after the 50th element
+    inverse = np.fft.irfft(fourier_real) #inverse FFT of fourier_real
+    return inverse
+
+#print(all_data)
+data_y = all_data[0,:]
+data_scaled = data_y*0.02
+non_zero_avg = np.mean(data_scaled[data_scaled>0])
+print(non_zero_avg)
+data_scaled[data_scaled<200]=non_zero_avg
 plt.scatter(years, data_scaled, s=1, marker='.')
 plt.ylim([250,350])
-#plt.xticks(np.arange(19), ['2002','2003','2004','2005','2006','2007','2008', '2009', '2010', '2011', '2012', '2013', '2014','2015','2016', '2017','2018','2019','2020'])
-plt.xlabel('Julian Days Between 2002 and 2020')
+labels = ['2002','2003','2004','2005','2006','2007','2008', '2009', '2010', '2011', '2012', '2013', '2014','2015','2016', '2017','2018','2019','2020']
+#plt.xticks(np.arange(2002, 2020, step=366))  # Set label locations.
+#plt.xtics = (years,labels, rotation='vertical')
+plt.xlabel('Julian Days between 2002 and 2020 (time)')
 plt.ylabel('Temperature in Kelvin')
 plt.suptitle("Lake Washington Surface Temperature (Day)")
 trendline = np.polyfit(years.flatten(), data_scaled.flatten(),1) #thanks, Stackoverflow!
@@ -91,12 +108,19 @@ plt.plot(years,p(years),"r--")
 plt.title("y=%6fx+%.6f"%(trendline[0],trendline[1]))
 plt.show()
 
-#creating the Fourier transform
-data_scaled = data_scaled - non_zero_avg
-lake_fourier = np.fft.fft(data_scaled)
-plt.plot(np.real(lake_fourier*np.conjugate(lake_fourier)))
-plt.title('Fourier Transform of Lake Washington Daily Temperatures')
-plt.show()
+"""
+As seen in the accompanying figure, the LSWT of Lake Washington has been progressively warming over 
+the last 18 years.
+"""
 
-end = time.time()
-print(f"This program took:{end-start} seconds to run")
+data_scaled = data_scaled - non_zero_avg
+mean = np.mean(data_scaled)
+#print(mean)
+data_scaled = data_scaled - np.mean(data_scaled)
+#lake_fourier = np.fft.rfft(data_scaled)
+#lake_fourier = lake_fourier - non_zero_avg 
+lake_fourier = fourier(data_scaled)
+#plt.xlim([0,50])
+#plt.plot(np.real(lake_fourier*np.conjugate(lake_fourier)))
+plt.plot(fourier(data_scaled))
+plt.show()
