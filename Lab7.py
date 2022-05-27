@@ -9,7 +9,7 @@ modulated sine wave, respectively. The task is then to create a Fourier Transfor
 x = np.linspace(0, 1000, 1000) #x-values
 
 #Fourier transform from my project!
-def fourier(y): #help from a friend! (50 is a little under 10% of our total) Keep biggest coefficients
+def fourier(y): 
     fourier_real = np.fft.rfft(y) #rfft is the n-dimensional of real input
     f_array = int(len(fourier_real)) #length of array
     new_array = len(fourier_real)-f_array #removes the last 90% or so from the array
