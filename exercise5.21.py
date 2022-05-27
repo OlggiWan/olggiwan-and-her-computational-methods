@@ -1,7 +1,11 @@
-from pylab import streamplot
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.constants as cons
+
+"""
+This laboratory activity asks us to first calculate the electric potential of two charges, and then to find the 
+resulting electric field.
+"""
 
 q1 = [45,50] #the charges
 q2 = [55,50]
@@ -36,6 +40,7 @@ def Partials(q,delta_x, delta_y):
 partialx = ((Partials(1, (dist_x1 + h / 2), dist_y1) - Partials(1, (dist_x2 - h / 2), dist_y2)) / h) + ((Partials(-1, (dist_x2 + h / 2), dist_y2) - Partials(-1, (dist_x2 - h / 2), dist_y2)) / h)
 partialy = ((Partials(1, dist_x1, (dist_y1 + h / 2)) - Partials(1, dist_x1, (dist_y1 - h / 2))) / h) + ((Partials(-1, dist_x2, (dist_y2 + h / 2)) - Partials(-1, dist_x2, (dist_y2 - h / 2))) / h)
 
-streamplot(xgrid, ygrid, partialx, partialy)
+plt.streamplot(xgrid, ygrid, partialx, partialy)
 plt.title("Electric Field")
 plt.show()
+
