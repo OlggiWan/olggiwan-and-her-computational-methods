@@ -27,7 +27,7 @@ def Trapezoid(a,b,n): #inspired by Mark Newman's code in his textbook, "Computat
         
     return (delta_x*s)
 
-W = first_term(1) * integrand(1)
+W = first_term(1) * Trapezoid(a,b,n)
 
 print("This is my result using the Trapezoidal integration method: ",W)
 print("This is the known value of the Stefan-Boltzmann constant: ",SB)
