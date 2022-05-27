@@ -8,6 +8,16 @@ modulated sine wave, respectively. The task is then to create a Fourier Transfor
 '''
 x = np.linspace(0, 1000, 1000) #x-values
 
+#Fourier transform from my project!
+def fourier(y): #help from a friend! (50 is a little under 10% of our total) Keep biggest coefficients
+    fourier_real = np.fft.rfft(y) #rfft is the n-dimensional of real input
+    f_array = int(len(fourier_real)) #length of array
+    new_array = len(fourier_real)-f_array #removes the last 90% or so from the array
+    fourier_real = (fourier_real[:f_array]) #the last element of the array
+    fourier_real = np.pad(fourier_real,(0,new_array),'constant') #creates a padded array of zeros after the 50th element
+    inverse = np.fft.irfft(fourier_real) #inverse FFT of fourier_real 
+    return inverse 
+
 def square_wave(x): 
     y = np.zeros(len(x))
     for i in range(len(x)):
@@ -48,17 +58,14 @@ plt.show()
 
 #creating Fourier Transforms for each
 
-fourier_square = np.fft.fft(square_wave(x))
-plt.plot (np.real(fourier_square*np.conjugate(fourier_square)))
+plt.plot (fourier(square_wave(x)))
 plt.title ('Fourier Transform of Square Wave')
 plt.show()
 
-fourier_sawtooth = np.fft.fft(sawtooth_wave(x))
-plt.plot (np.real(fourier_sawtooth*np.conjugate(fourier_sawtooth)))
+plt.plot (fourier(sawtooth_wave(x)))
 plt.title('Fourier Transform of Sawtooth Wave')
 plt.show()
 
-fourier_modulated = np.fft.fft(modulated_wave(x))
-plt.plot(np.real(fourier_modulated*np.conjugate(fourier_modulated)))
+plt.plot(fourier(modulated_wave(x)))
 plt.title('Fourier Transform of Modulated Sine Wave')
 plt.show()
